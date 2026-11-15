@@ -19,6 +19,12 @@ the list element will consist of a length-1 character vector containing
 takes in a vector of hostnames and returns the IP addresses from
 each hostname's DNS entries. Compatible with both IPv4 and IPv6 addresses.
 }
+\details{
+On WebR, numeric IPv4 and IPv6 literals are normalized directly.
+The reserved name localhost (case-insensitive, with an optional final dot)
+returns 127.0.0.1 followed by ::1. Other names return "Not resolved": WebR
+does not provide real DNS lookup. Native DNS resolution is unchanged.
+}
 \examples{
 
 \dontrun{

@@ -56,6 +56,11 @@ range_boundaries_to_cidr <- function(ip_start, ip_end) {
 #' @description takes in a vector of hostnames and returns the IP addresses from
 #' each hostname's DNS entries. Compatible with both IPv4 and IPv6 addresses.
 #'
+#' @details On WebR, numeric IPv4 and IPv6 literals are normalized directly.
+#' The reserved name localhost (case-insensitive, with an optional final dot)
+#' returns 127.0.0.1 followed by ::1. Other names return "Not resolved": WebR
+#' does not provide real DNS lookup. Native DNS resolution is unchanged.
+#'
 #' @param hostnames a vector of hostnames.
 #'
 #' @return a list the length of \code{hostnames}, containing the IP addresses from
@@ -92,6 +97,10 @@ hostname_to_ip <- function(hostnames) {
 #' \code{ip_to_hostname} consumes a vector of IP addresses and provides a list of
 #' the hostnames that those IPs resolve to. Compatible with both IPv4 and
 #' IPv6 addresses.
+#'
+#' @details On WebR, valid IP literals are returned in normalized numeric form;
+#' no reverse-DNS lookup is performed. Invalid input returns "Invalid IP address".
+#' Native reverse-DNS resolution is unchanged.
 #'
 #' @param ip_addresses a vector of IP addresses.
 #'

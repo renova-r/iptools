@@ -20,6 +20,11 @@ the opposite, in some ways, of \code{\link{hostname_to_ip}},
 the hostnames that those IPs resolve to. Compatible with both IPv4 and
 IPv6 addresses.
 }
+\details{
+On WebR, valid IP literals are returned in normalized numeric form;
+no reverse-DNS lookup is performed. Invalid input returns "Invalid IP address".
+Native reverse-DNS resolution is unchanged.
+}
 \examples{
 \dontrun{
 ip_to_hostname("162.243.111.4")

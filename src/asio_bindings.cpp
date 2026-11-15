@@ -1,6 +1,7 @@
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::depends(AsioHeaders)]]
 
+#include "asio_config.h"
 #include <Rcpp.h>
 #include <stdio.h>
 
@@ -162,6 +163,26 @@ std::vector < std::string > asio_bindings::single_hostname_to_dns(std::string ho
                                                                   asio::ip::tcp::resolver& resolver_ptr){
   std::vector < std::string > output;
 
+#if defined(__EMSCRIPTEN__)
+  // Emscripten's resolver synthesizes addresses for arbitrary hostnames.
+  // Parse literal addresses directly and never report those synthetic values.
+  asio::error_code parse_error;
+  asio::ip::address literal = asio::ip::address::from_string(hostname, parse_error);
+  if (!parse_error) {
+    output.push_back(literal.to_string());
+  } else {
+    std::string name = hostname;
+    for (char& c : name) {
+      if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+    }
+    if (name == "localhost" || name == "localhost.") {
+      output.push_back("127.0.0.1");
+      output.push_back("::1");
+    } else {
+      output.push_back("Not resolved");
+    }
+  }
+#else
   try{
     asio::ip::tcp::resolver::query query(hostname, "");
     asio::ip::tcp::resolver::iterator destination = resolver_ptr.resolve(query);
@@ -175,6 +196,7 @@ std::vector < std::string > asio_bindings::single_hostname_to_dns(std::string ho
   } catch(...){
     output.push_back("Not resolved");
   }
+#endif
 
   return output;
 }
@@ -206,6 +228,15 @@ std::list < std::vector < std::string > > asio_bindings::multi_hostname_to_dns(s
 std::vector < std::string > asio_bindings::single_ip_to_dns(std::string ip_address,
                                                           asio::ip::tcp::resolver& resolver_ptr){
   std::vector < std::string > output;
+#if defined(__EMSCRIPTEN__)
+  // WebR has no real reverse-DNS lookup. Return a normalized literal rather
+  // than a hostname from Emscripten's virtual resolver table.
+  try {
+    output.push_back(asio::ip::address::from_string(ip_address).to_string());
+  } catch (...) {
+    output.push_back("Invalid IP address");
+  }
+#else
   asio::ip::tcp::endpoint endpoint;
 
   try{
@@ -221,6 +252,7 @@ std::vector < std::string > asio_bindings::single_ip_to_dns(std::string ip_addre
   } catch(...){
     output.push_back("Invalid IP address");
   }
+#endif
 
   return output;
 }

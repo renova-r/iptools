@@ -1,6 +1,7 @@
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::depends(AsioHeaders)]]
 
+#include "asio_config.h"
 #include <Rcpp.h>
 
 // #ifdef __APPLE__
